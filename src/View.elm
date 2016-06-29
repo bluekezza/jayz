@@ -8,8 +8,7 @@ root : Model -> Html Msg
 root model =
     div []
         [ p []
-            [ text ("Model: " ++ toString model.player)
-            ]
+            [ text ("Model: " ++ toString model) ]]
         {-
         , button [ onClick (PlayerMsg (Turn 1.0)) ]
             [ text "Turn" ]
@@ -18,4 +17,3 @@ root model =
         , button [ onClick (ActivityMsg Attack) ]
             [ text "Attack" ]
         -}
-        ]
