@@ -8,8 +8,7 @@ type alias Angle = Float
 type alias Speed = Float
         
 type Msg
-    = Move Geometry.Side
-    | Attack
+    = Attack
     | Suffer
 
 type Weapon

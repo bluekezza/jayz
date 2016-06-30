@@ -2,14 +2,12 @@ module State exposing (..)
 
 import AnimationFrame
 import Player.State
-import Geometry exposing (Side(..), Direction, Attitude, Position)
+import Geometry exposing (Direction, Attitude, Position)
 import Player.Types exposing (Player)
--- import Time exposing (..)
-import Char
+import Time exposing (..)
 import Keyboard
 import Window exposing (Size)
 import Types exposing (..)
-import Maybe exposing (..)
 import Http exposing (Error)
 import Task exposing (Task)
 
@@ -28,6 +26,7 @@ initialState =
         [ Window.size |> windowSize ]
     )
 
+{-
 keyMap : Int -> Maybe Player.Types.Msg
 keyMap keyCode =
     case (Char.fromCode keyCode) of
@@ -37,6 +36,7 @@ keyMap keyCode =
         'w' -> Just (Player.Types.Move Right)
         ' ' -> Just (Player.Types.Attack)
         _   -> Nothing
+-}
 
 {- SPEC
 pressing_the_a_key_makes_the_player_turn_left
@@ -92,7 +92,7 @@ actOn model =
 makeAttitude : Keys -> (Int, Int)
 makeAttitude keys =
     let
-        dx :Int
+        dx : Int
         dx = 0
         dy : Int
         dy = 0
@@ -105,11 +105,11 @@ makeAttitude keys =
               else
                   dx1
         dy1 = if keys.up then
-                  dy + 1
+                  dy - 1
               else
                   dy
         dy2 = if keys.down then
-                  dy1 - 1
+                  dy1 + 1
               else
                   dy1
         -- (direction, velocity) = case (Debug.log "(dx,dy)" (dx2, dy2)) of
@@ -153,8 +153,8 @@ updatePlayer keys player =
              , geometry = updateGeometry keys player.geometry
     }
             
-updateModel : Model -> Model
-updateModel model =
+updateModel : Time -> Model -> Model
+updateModel _ model =
     let
         {keys, player} = model
         player' = updatePlayer keys player
@@ -177,7 +177,7 @@ update msg model =
                                     , Cmd.none
                                     )
         KeyChange  updateKeysFn  -> ( { model | keys = updateKeysFn model.keys }, Cmd.none )
-        TimeUpdate dt            -> ( updateModel model, Cmd.none )
+        TimeUpdate dt            -> ( updateModel dt model, Cmd.none )
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
