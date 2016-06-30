@@ -1,8 +1,6 @@
 module Geometry exposing (..)
 
-import Time exposing (Time)
-
-type alias Position = { x : Length, y : Length }
+type alias Position = { x : Int, y : Int }
 type alias Angle    = Float
 type alias Velocity = Float
 type alias Length   = Float
@@ -13,12 +11,13 @@ type Side
     | Down
     | Left
     | Right
-    
+
+type alias Attitude = ( Int, Int )
+      
 type alias Geometry =
-    { position  : Position
-    , direction : Direction
-    , velocity  : Velocity
-    }             
+    { position : Position
+    , attitude : Attitude
+    }
     
 type Action
     = Rotate    Angle
@@ -30,21 +29,8 @@ rotate angle geometry = geometry
 translate : Angle -> Length -> Geometry -> Geometry
 translate angle length geometry = geometry
 
-applyPhysics : Time -> Geometry -> Geometry
-applyPhysics dt geometry =
-    let
-        length = geometry.velocity * dt
-        -- todo need to apply the physics along the direction we are pointing
-    in
-        geometry
-        -- { geometry | position = geometry.position + length}
-        
 act : Action -> Geometry -> Geometry
 act action geometry =
     case action of
         (Rotate    angle)            -> rotate angle geometry
         (Translate direction length) -> translate direction length geometry
-
-updateVelocity : Float -> Geometry -> Geometry
-updateVelocity newVelocity geometry =
-    { geometry | velocity = newVelocity }

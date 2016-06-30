@@ -6,14 +6,13 @@ import Player.Types exposing (..)
 
 -- SPEC
 initialState : Model
-initialState =                              -- The player starts 
+initialState =                          -- The player starts 
     { geometry = 
-          { position = { x = 0.0, y = 0.0 } -- in the middle of the window
-          , direction = 0.0                 -- in a neutral direction
-          , velocity  = 0.0                 -- standing still
+          { position = { x = 0, y = 0 } -- in the middle of the window
+          , attitude = ( 0, 0 )          
           }
-    , doing     = Nothing                   -- doing nothing
-    , holding   = Nothing                   -- holding nothing
+    , doing     = []                    -- doing nothing
+    , holding   = Just Player.Types.Axe
     }
 
 -- SPEC (for asteroids style movement)

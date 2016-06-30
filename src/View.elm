@@ -6,14 +6,13 @@ import Types exposing (..)
 
 root : Model -> Html Msg
 root model =
-    div []
-        [ p []
-            [ text ("Model: " ++ toString model) ]]
-        {-
-        , button [ onClick (PlayerMsg (Turn 1.0)) ]
-            [ text "Turn" ]
-        , button [ onClick (ActivityMsg (Move 1.0)) ]
-            [ text "Move" ]
-        , button [ onClick (ActivityMsg Attack) ]
-            [ text "Attack" ]
-        -}
+    div [] [text "Model"
+           ,ul []
+               [(li [] [ text ("Window: " ++ toString model.wsize )])
+               ,(li [] [ text ("Keys  : " ++ toString model.keys)])
+               ,(li [] [ text "Player: "
+                       , (ul [] [(li [] [ text ("holding: " ++ toString model.player.holding)])
+                                ,(li [] [ text ("doing: " ++ toString model.player.doing)])
+                                ,(li [] [ text ("attitude: " ++ toString model.player.geometry.attitude)])
+                                ,(li [] [ text ("position: " ++ toString model.player.geometry.position)])])])]]
+

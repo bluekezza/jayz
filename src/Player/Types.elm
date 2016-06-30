@@ -7,11 +7,6 @@ type alias Angle = Float
     
 type alias Speed = Float
         
-type alias Position =
-    { x : Float
-    , y : Float
-    }
-
 type Msg
     = Move Geometry.Side
     | Attack
@@ -21,10 +16,16 @@ type Weapon
     = Magazine
     | Bag
     | Chair
-    
+    | Axe
+
+type Action
+    = Attacking
+    | Suffering
+    | Moving
+
 type alias Model =
     { geometry : Geometry.Geometry
-    , doing    : Maybe Msg
+    , doing    : List Action
     , holding  : Maybe Weapon
     }
 

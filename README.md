@@ -7,6 +7,6 @@ The Zombie will go for the non-zombie who is closest to them.
 
 # Inpisrational
 https://github.com/Sulring/elmaction
-
-
 https://ohanhi.github.io/base-for-game-elm-017.html
+https://github.com/krisajenkins/elm-rays/blob/master/src/Types.elm
+http://lexi-lambda.github.io/blog/2015/11/06/functionally-updating-record-types-in-elm/
