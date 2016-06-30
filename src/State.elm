@@ -89,42 +89,25 @@ actOn model =
             { model | player = player1 }
 -}
 
+-- if and only if
+iff : Bool -> (Int -> Int) -> Int -> Int
+iff pred func i =
+    if pred then
+        func i
+    else
+        i
+
 makeAttitude : Keys -> (Int, Int)
 makeAttitude keys =
     let
-        dx : Int
         dx = 0
-        dy : Int
+           |> iff keys.left  ((+) -3)
+           |> iff keys.right ((+)  3)
         dy = 0
-        dx1 = if keys.left then
-                  dx - 1
-              else
-                  dx
-        dx2 = if keys.right then
-                  dx1 + 1
-              else
-                  dx1
-        dy1 = if keys.up then
-                  dy - 1
-              else
-                  dy
-        dy2 = if keys.down then
-                  dy1 + 1
-              else
-                  dy1
-        -- (direction, velocity) = case (Debug.log "(dx,dy)" (dx2, dy2)) of
-        --                             (0 , 0) -> ( 0.0  , 0.0 ) -- nothing ( geometry.direction, 0.0 ) -- direction remains the same, but velocity is zero
-        --                             (0 , 1) -> ( 0.0  , 1.0 ) -- up
-        --                             (0 ,-1) -> ( 180.0, 1.0 ) -- down
-        --                             (1 , 0) -> ( 90.0 , 1.0 ) -- right
-        --                             (1 , 1) -> ( 45.0 , 1.0 ) -- right + up
-        --                             (1 ,-1) -> ( 135.0, 1.0 ) -- right + down
-        --                             (-1, 0) -> ( 270.0, 1.0 ) -- left
-        --                             (-1, 1) -> ( 315.0, 1.0 ) -- left + up
-        --                             (-1,-1) -> ( 225.0, 1.0 ) -- left + down
-        --                             _       -> ( 0.0  , 0.0 ) -- this is a smell!!!
+           |> iff keys.up    ((+) -3)
+           |> iff keys.down  ((+)  3)
     in
-        (dx2, dy2)
+        (dx, dy)
 
 updatePosition : (Int, Int) -> Position -> Position
 updatePosition (dx, dy) {x, y} =
