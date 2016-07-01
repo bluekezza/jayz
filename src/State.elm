@@ -10,6 +10,7 @@ import Window exposing (Size)
 import Types exposing (..)
 import Http exposing (Error)
 import Task exposing (Task)
+import Core exposing (iff)
 
 initialState : ( Model, Cmd Msg )
 initialState =
@@ -88,14 +89,6 @@ actOn model =
         in 
             { model | player = player1 }
 -}
-
--- if and only if
-iff : Bool -> (Int -> Int) -> Int -> Int
-iff pred func i =
-    if pred then
-        func i
-    else
-        i
 
 makeAttitude : Keys -> (Int, Int)
 makeAttitude keys =
