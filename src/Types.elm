@@ -1,9 +1,10 @@
 module Types exposing (..)
 
+import Geometry exposing (Geometry)
+import Http exposing (Error)
 import Player.Types
 import Time exposing (..)
 import Window exposing (Size)
-import Http exposing (Error)
 
 type alias Keys =
     { left  : Bool
@@ -14,9 +15,10 @@ type alias Keys =
     }
 
 type alias Model =
-    { player : Player.Types.Model
-    , wsize : { width : Int, height : Int }
+    { wsize : { width : Int, height : Int }
     , keys : Keys
+    , player : Player.Types.Model
+    , zombie : Geometry.Geometry
     }
     
 type Msg
@@ -24,4 +26,3 @@ type Msg
     | KeyChange (Keys -> Keys)
     | WindowResizeError Error
     | WindowResizeSuccess Size
-

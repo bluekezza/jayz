@@ -15,13 +15,16 @@ import Core exposing (iff)
 initialState : ( Model, Cmd Msg )
 initialState =
     ( { wsize = { width = 800, height = 800 }
-      , player = Player.State.initialState
       , keys = { left  = False
                , right = False
                , up    = False
                , down  = False
                , enter = False
                }
+      , player = Player.State.initialState
+      , zombie = { position = { x = 400, y = 100 }
+                 , attitude = ( 0, 0 )
+                 }
       }
     , Cmd.batch
         [ Window.size |> windowSize ]
