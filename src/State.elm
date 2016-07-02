@@ -2,15 +2,16 @@ module State exposing (..)
 
 import AnimationFrame
 import Player.State
-import Geometry exposing (Direction, Attitude, Position)
-import Player.Types exposing (Player)
-import Time exposing (..)
+import Geometry       exposing (Direction, Attitude, Position, Vector)
+import Player.Types   exposing (Player)
+import Time           exposing (..)
 import Keyboard
-import Window exposing (Size)
-import Types exposing (..)
-import Http exposing (Error)
-import Task exposing (Task)
-import Core exposing (iff)
+import Window         exposing (Size)
+import Types          exposing (..)
+import Http           exposing (Error)
+import Task           exposing (Task)
+import Core           exposing (iff)
+import Exts.Tuple     exposing (both)
 
 initialState : ( Model, Cmd Msg )
 initialState =
@@ -23,7 +24,10 @@ initialState =
                }
       , player = Player.State.initialState
       , zombie = { position = { x = 400, y = 100 }
-                 , attitude = ( 0, 0 )
+                 , attitude =
+                       { direction = 0.0
+                       , velocity = 0.0
+                       }
                  }
       }
     , Cmd.batch
@@ -62,7 +66,7 @@ keyChange on key =
                 
         updateKeysFn : Keys -> Keys
         updateKeysFn =
-            if (Debug.log "key" key) == a then
+            if key == a then
                 \k -> { k | left  = on }
             else if key == d then
                 \k -> { k | right = on }
@@ -77,43 +81,83 @@ keyChange on key =
     in
         KeyChange updateKeysFn
 
--- press 'a' and you translate left
--- press 'd' and you translate right
--- press 's' and you translate down
--- press 'w' and you translate up
--- if 2 keys are pressed, then their effects are combined            actOn : Model -> Model
-{-
-actOn : Model -> Model
-actOn model =
-    if model.keys.enter == True then
-        let
-            player = model.player
-            player1 = { player | doing = Attacking }
-        in 
-            { model | player = player1 }
--}
+type Enum
+    = Positive
+    | Zero
+    | Negative
 
-makeAttitude : Keys -> (Int, Int)
-makeAttitude keys =
+prev : Enum -> Enum
+prev enum =
+    case enum of
+        Positive -> Zero
+        Zero     -> Negative
+        Negative -> Negative
+
+succ : Enum -> Enum
+succ enum =
+    case enum of
+        Positive -> Positive
+        Zero     -> Positive
+        Negative -> Zero
+
+makeAttitude : Direction -> Keys -> (Attitude, Vector)
+makeAttitude direction keys =
     let
-        dx = 0
-           |> iff keys.left  ((+) -3)
-           |> iff keys.right ((+)  3)
-        dy = 0
-           |> iff keys.up    ((+) -3)
-           |> iff keys.down  ((+)  3)
+        dx = Zero
+           |> iff keys.left  prev
+           |> iff keys.right succ
+        dy = Zero
+           |> iff keys.up    prev
+           |> iff keys.down  succ
     in
-        (dx, dy)
-
-updatePosition : (Int, Int) -> Position -> Position
+        case (dx, dy) of
+            (Zero,     Positive) -> ( { direction = 0.0
+                                      , velocity  = 1.0
+                                      }
+                                      , ( 0,  1))
+            (Negative, Positive) -> ( { direction = 45.0
+                                      , velocity  = 1.0
+                                      }
+                                      , (-1,  1))
+            (Negative, Zero    ) -> ( { direction = 90.0
+                                      , velocity  = 1.0
+                                      }
+                                      , (-1,  0))
+            (Negative, Negative) -> ( { direction = 135.0
+                                      , velocity  = 1.0
+                                      }
+                                      , (-1, -1))
+            (Zero,     Negative) -> ( { direction = 180.0
+                                      , velocity  = 1.0
+                                      }
+                                      , ( 0, -1))
+            (Positive, Negative) -> ( { direction = 225.0
+                                      , velocity  = 1.0
+                                      }
+                                      , ( 1, -1))
+            (Positive, Zero    ) -> ( { direction = 270.0
+                                      , velocity  = 1.0
+                                      }
+                                      , ( 1,  0))
+            (Positive, Positive) -> ( { direction = 315.0
+                                      , velocity  = 1.0
+                                      }
+                                      , ( 1,  1))
+            (Zero,     Zero    ) -> ( { direction = direction
+                                      , velocity = 0.0
+                                      }
+                                      , ( 0,  0))
+            
+updatePosition : Vector -> Position -> Position
 updatePosition (dx, dy) {x, y} =
     { x = x + dx, y = y + dy }
         
 updateGeometry : Keys -> Geometry.Geometry -> Geometry.Geometry
 updateGeometry keys geometry =
     let
-        attitude = makeAttitude keys
-        position = updatePosition attitude geometry.position
+        (attitude, vector) = makeAttitude geometry.attitude.direction keys
+        vector' = both ((*) 3) vector
+        position = updatePosition vector' geometry.position
     in
         { geometry | attitude = attitude
                    , position = position

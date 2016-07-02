@@ -7,7 +7,10 @@ initialState : Model
 initialState =                          -- The player starts 
     { geometry = 
           { position = { x = 0, y = 0 } -- in the middle of the window
-          , attitude = ( 0, 0 )          
+          , attitude =
+                { direction = 0.0
+                , velocity = 0.0
+                }
           }
     , doing     = []                    -- doing nothing
     , holding   = Just Player.Types.Axe
