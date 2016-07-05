@@ -11,7 +11,7 @@ import Types          exposing (..)
 import Http           exposing (Error)
 import Task           exposing (Task)
 import Core           exposing (iff)
-import Exts.Tuple     exposing (both)
+-- import Exts.Tuple     exposing (both)
 
 initialState : ( Model, Cmd Msg )
 initialState =
@@ -23,7 +23,7 @@ initialState =
                , enter = False
                }
       , player = Player.State.initialState
-      , zombie = { position = { x = 400, y = 100 }
+      , zombie = { position = { x = 100, y = 100 }
                  , attitude =
                        { direction = 0.0
                        , velocity = 0.0
@@ -111,53 +111,50 @@ makeAttitude direction keys =
            |> iff keys.down  succ
     in
         case (dx, dy) of
-            (Zero,     Positive) -> ( { direction = 0.0
+            (Zero,     Positive) -> ( { direction = (degrees 0.0)
                                       , velocity  = 1.0
                                       }
-                                      , ( 0,  1))
-            (Negative, Positive) -> ( { direction = 45.0
+                                      , { x = 0, y = 1 })
+            (Negative, Positive) -> ( { direction = (degrees 45.0)
                                       , velocity  = 1.0
                                       }
-                                      , (-1,  1))
-            (Negative, Zero    ) -> ( { direction = 90.0
+                                      , { x = -1, y = 1 })
+            (Negative, Zero    ) -> ( { direction = (degrees 90.0)
                                       , velocity  = 1.0
                                       }
-                                      , (-1,  0))
-            (Negative, Negative) -> ( { direction = 135.0
+                                      , { x = -1, y = 0 })
+            (Negative, Negative) -> ( { direction = (degrees 135.0)
                                       , velocity  = 1.0
                                       }
-                                      , (-1, -1))
-            (Zero,     Negative) -> ( { direction = 180.0
+                                      , { x = -1, y =-1 })
+            (Zero,     Negative) -> ( { direction = (degrees 180.0)
                                       , velocity  = 1.0
                                       }
-                                      , ( 0, -1))
-            (Positive, Negative) -> ( { direction = 225.0
+                                      , { x =  0, y =-1 })
+            (Positive, Negative) -> ( { direction = (degrees 225.0)
                                       , velocity  = 1.0
                                       }
-                                      , ( 1, -1))
-            (Positive, Zero    ) -> ( { direction = 270.0
+                                      , { x =  1, y =-1 })
+            (Positive, Zero    ) -> ( { direction = (degrees 270.0)
                                       , velocity  = 1.0
                                       }
-                                      , ( 1,  0))
-            (Positive, Positive) -> ( { direction = 315.0
+                                      , { x =  1, y = 0 })
+            (Positive, Positive) -> ( { direction = (degrees 315.0)
                                       , velocity  = 1.0
                                       }
-                                      , ( 1,  1))
+                                      , { x =  1, y = 1 })
             (Zero,     Zero    ) -> ( { direction = direction
                                       , velocity = 0.0
                                       }
-                                      , ( 0,  0))
+                                      , { x =  0, y = 0 })
             
-updatePosition : Vector -> Position -> Position
-updatePosition (dx, dy) {x, y} =
-    { x = x + dx, y = y + dy }
-        
 updateGeometry : Keys -> Geometry.Geometry -> Geometry.Geometry
 updateGeometry keys geometry =
     let
         (attitude, vector) = makeAttitude geometry.attitude.direction keys
-        vector' = both ((*) 3) vector
-        position = updatePosition vector' geometry.position
+        vector' = { vector | x = vector.x * 3
+                           , y = vector.y * 3 }
+        position = Geometry.updatePosition vector' geometry.position
     in
         { geometry | attitude = attitude
                    , position = position
@@ -175,14 +172,32 @@ updatePlayer keys player =
     { player | doing = updateDoing keys
              , geometry = updateGeometry keys player.geometry
     }
-            
+
+{- - Zombie[start]
+The Zombie's direction will always point to the closest non-zombie
+This may become the change of direction that requires the least amount of energy
+
+Position -> Position -> Direction
+
+-- Zombie[end] -}
+
+newZombiePosition : Position -> Position -> Direction
+newZombiePosition zPosition pPosition =
+    Geometry.angleBetween zPosition pPosition
+    
 updateModel : Time -> Model -> Model
 updateModel _ model =
     let
         {keys, player} = model
-        player' = updatePlayer keys player
+        model' = { model | player = updatePlayer keys player }
+        zDirection = Geometry.angleBetween model'.zombie.position model'.player.geometry.position
+        zombie = model.zombie
+        zAttitude = zombie.attitude
+        zAttitude' = { zAttitude | direction = zDirection }
+        zombie' = { zombie | attitude = zAttitude' }
+        model'' = { model' | zombie = zombie' }
     in
-        { model | player = player' }
+        model''
 
 {- SPEC
 WindowResize updates the window size

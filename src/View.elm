@@ -15,7 +15,7 @@ board : Model -> Html msg
 board model =
     let
         w = 300
-        h = 300
+        h = 500
     in
         svg
         [ width (toString (model.wsize.width - w)), height (toString (model.wsize.height - h)), viewBox ("0 0 " ++ (toString (model.wsize.width - w)) ++ " " ++ (toString (model.wsize.height - h)))]
@@ -28,11 +28,19 @@ renderGeometry geometry =
     ul []
         [li [] [ text "Geometry"
                , ul []
-                   [ li [] [ text ("direction: " ++ toString geometry.direction)]
-                   , li [] [ text ("attitude: " ++ toString geometry.attitude)]
+                   [ li [] [ text "attitude: "
+                           , ul []
+                               [ li [] [ text "direction: "
+                                       , text (toString (Geometry.toDegrees geometry.attitude.direction))
+                                       ]
+                               , li [] [ text "velocity: "
+                                       , text (toString geometry.attitude.velocity)
+                                      ]
+                                   
+                                ]]
                    , li [] [ text ("position: " ++ toString geometry.position)]
                    ]]]
-        
+
 diagnostics : Model -> Html Msg
 diagnostics model =
     div []
@@ -44,11 +52,14 @@ diagnostics model =
                     , (ul [] [(li [] [ text ("holding: " ++ toString model.player.holding)])
                              ,(li [] [ text ("doing: " ++ toString model.player.doing)])
                              , renderGeometry model.player.geometry
-                             ])])]]
+                             ])])
+            , li [] [ text "Zombie: "
+                    , renderGeometry model.zombie
+                    ]
+             ]]
         
 root : Model -> Html Msg
 root model =
     div []
         [ board model
         , diagnostics model ]
-
