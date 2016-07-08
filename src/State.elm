@@ -111,35 +111,35 @@ makeAttitude direction keys =
            |> iff keys.down  succ
     in
         case (dx, dy) of
-            (Zero,     Positive) -> ( { direction = (degrees 0.0)
+            (Zero,     Positive) -> ( { direction = (degrees 180.0)
                                       , velocity  = 1.0
                                       }
                                       , { x = 0, y = 1 })
-            (Negative, Positive) -> ( { direction = (degrees 45.0)
+            (Negative, Positive) -> ( { direction = (degrees 225.0)
                                       , velocity  = 1.0
                                       }
                                       , { x = -1, y = 1 })
-            (Negative, Zero    ) -> ( { direction = (degrees 90.0)
+            (Negative, Zero    ) -> ( { direction = (degrees 270.0)
                                       , velocity  = 1.0
                                       }
                                       , { x = -1, y = 0 })
-            (Negative, Negative) -> ( { direction = (degrees 135.0)
+            (Negative, Negative) -> ( { direction = (degrees 315.0)
                                       , velocity  = 1.0
                                       }
                                       , { x = -1, y =-1 })
-            (Zero,     Negative) -> ( { direction = (degrees 180.0)
+            (Zero,     Negative) -> ( { direction = (degrees 0.0)
                                       , velocity  = 1.0
                                       }
                                       , { x =  0, y =-1 })
-            (Positive, Negative) -> ( { direction = (degrees 225.0)
+            (Positive, Negative) -> ( { direction = (degrees 45.0)
                                       , velocity  = 1.0
                                       }
                                       , { x =  1, y =-1 })
-            (Positive, Zero    ) -> ( { direction = (degrees 270.0)
+            (Positive, Zero    ) -> ( { direction = (degrees 90.0)
                                       , velocity  = 1.0
                                       }
                                       , { x =  1, y = 0 })
-            (Positive, Positive) -> ( { direction = (degrees 315.0)
+            (Positive, Positive) -> ( { direction = (degrees 135.0)
                                       , velocity  = 1.0
                                       }
                                       , { x =  1, y = 1 })
