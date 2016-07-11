@@ -100,6 +100,74 @@ succ enum =
         Zero     -> Positive
         Negative -> Zero
 
+fromDirection : Int -> (Attitude, Vector)
+fromDirection direction =
+    case direction of
+        180  -> ( { direction = (degrees 180.0)
+                  , velocity  = 1.0
+                  }
+                , { x = 0, y = 1 })
+        (-180) -> ( { direction = (degrees -180.0)
+                 , velocity  = 1.0
+                 }
+               , { x = 0, y = 1 })
+        225  -> ( { direction = (degrees 225.0)
+                  , velocity  = 1.0
+                  }
+                , { x = -1, y = 1 })
+        (-135) -> ( { direction = (degrees -135.0)
+                  , velocity  = 1.0
+                  }
+                , { x = -1, y = 1 })
+        270 -> ( { direction = (degrees 270.0)
+                 , velocity  = 1.0
+                 }
+               , { x = -1, y = 0 })
+        (-90) -> ( { direction = (degrees -90.0)
+                 , velocity  = 1.0
+                 }
+               , { x = -1, y = 0 })
+        315 -> ( { direction = (degrees 315.0)
+                 , velocity  = 1.0
+                 }
+               , { x = -1, y =-1 })
+        (-45) -> ( { direction = (degrees -45.0)
+                  , velocity  = 1.0
+                  }
+                , { x = -1, y =-1 })
+        0   -> ( { direction = (degrees 0.0)
+                 , velocity  = 1.0
+                 }
+               , { x =  0, y =-1 })
+        45  -> ( { direction = (degrees 45.0)
+                 , velocity  = 1.0
+                 }
+               , { x =  1, y =-1 })
+        (-315) -> ( { direction = (degrees 315.0)
+                  , velocity  = 1.0
+                  }
+                , { x =  1, y =-1 })
+        90  -> ( { direction = (degrees 90.0)
+                 , velocity  = 1.0
+                 }
+               , { x =  1, y = 0 })
+        (-270) -> ( { direction = (degrees -270.0)
+                  , velocity  = 1.0
+                  }
+                , { x =  1, y = 0 })        
+        135 -> ( { direction = (degrees 135.0)
+                 , velocity  = 1.0
+                 }
+               , { x =  1, y = 1 })
+        (-225) -> ( { direction = (degrees -225.0)
+                  , velocity  = 1.0
+                  }
+                , { x =  1, y = 1 })
+        _ -> ( { direction = (degrees 0)    -- shouldn't happen
+               , velocity  = 0
+               }
+             , { x =  0, y = 0 })
+        
 makeAttitude : Direction -> Keys -> (Attitude, Vector)
 makeAttitude direction keys =
     let
@@ -111,42 +179,18 @@ makeAttitude direction keys =
            |> iff keys.down  succ
     in
         case (dx, dy) of
-            (Zero,     Positive) -> ( { direction = (degrees 180.0)
-                                      , velocity  = 1.0
-                                      }
-                                      , { x = 0, y = 1 })
-            (Negative, Positive) -> ( { direction = (degrees 225.0)
-                                      , velocity  = 1.0
-                                      }
-                                      , { x = -1, y = 1 })
-            (Negative, Zero    ) -> ( { direction = (degrees 270.0)
-                                      , velocity  = 1.0
-                                      }
-                                      , { x = -1, y = 0 })
-            (Negative, Negative) -> ( { direction = (degrees 315.0)
-                                      , velocity  = 1.0
-                                      }
-                                      , { x = -1, y =-1 })
-            (Zero,     Negative) -> ( { direction = (degrees 0.0)
-                                      , velocity  = 1.0
-                                      }
-                                      , { x =  0, y =-1 })
-            (Positive, Negative) -> ( { direction = (degrees 45.0)
-                                      , velocity  = 1.0
-                                      }
-                                      , { x =  1, y =-1 })
-            (Positive, Zero    ) -> ( { direction = (degrees 90.0)
-                                      , velocity  = 1.0
-                                      }
-                                      , { x =  1, y = 0 })
-            (Positive, Positive) -> ( { direction = (degrees 135.0)
-                                      , velocity  = 1.0
-                                      }
-                                      , { x =  1, y = 1 })
             (Zero,     Zero    ) -> ( { direction = direction
                                       , velocity = 0.0
                                       }
-                                      , { x =  0, y = 0 })
+                                    , { x =  0, y = 0 })
+            (Zero,     Positive) -> fromDirection 180
+            (Negative, Positive) -> fromDirection 225
+            (Negative, Zero    ) -> fromDirection 270
+            (Negative, Negative) -> fromDirection 315
+            (Zero,     Negative) -> fromDirection 0
+            (Positive, Negative) -> fromDirection 45
+            (Positive, Zero    ) -> fromDirection 90
+            (Positive, Positive) -> fromDirection 135        
             
 updateGeometry : Keys -> Geometry.Geometry -> Geometry.Geometry
 updateGeometry keys geometry =
@@ -184,20 +228,28 @@ Position -> Position -> Direction
 newZombiePosition : Position -> Position -> Direction
 newZombiePosition zPosition pPosition =
     Geometry.angleBetween zPosition pPosition
-    
+
+updateZombie : Position -> Geometry.Geometry -> Geometry.Geometry
+updateZombie playerPosition zombie =
+    let
+        direction = Geometry.angleBetween zombie.position playerPosition
+        direction' = 45 * round (Geometry.toDegrees direction / 45)
+        (attitude', vector) = fromDirection direction'
+        position' = Geometry.updatePosition vector zombie.position
+    in
+        { zombie | attitude = attitude'
+                 , position = position' }
+      
 updateModel : Time -> Model -> Model
 updateModel _ model =
     let
         {keys, player} = model
-        model' = { model | player = updatePlayer keys player }
-        zDirection = Geometry.angleBetween model'.zombie.position model'.player.geometry.position
-        zombie = model.zombie
-        zAttitude = zombie.attitude
-        zAttitude' = { zAttitude | direction = zDirection }
-        zombie' = { zombie | attitude = zAttitude' }
-        model'' = { model' | zombie = zombie' }
+        player' = updatePlayer keys player
+        zombie' = updateZombie player'.geometry.position model.zombie
     in
-        model''
+       {  model | player = player'
+                , zombie = zombie'
+       }
 
 {- SPEC
 WindowResize updates the window size
