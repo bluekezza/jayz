@@ -32,12 +32,24 @@ initialState =
                , enter = False
                }
       , player = Player.State.initialState
-      , zombies = [newZombie 100 100
-                  ,newZombie 120 80
-                  ,newZombie 140 100
-                  ,newZombie 160 140
-                  ,newZombie 180 100
-                  ,newZombie 200 60]
+      , zombies = [ newZombie 100 100
+                  , newZombie 120 80
+                  , newZombie 140 100
+                  , newZombie 160 140
+                  , newZombie 180 100
+                  , newZombie 200 60
+                  , newZombie 300 60
+                  , newZombie 400 60
+                  , newZombie 500 60
+                  , newZombie 600 60
+                  , newZombie 700 60
+                  , newZombie 200 160
+                  , newZombie 300 260
+                  , newZombie 400 360
+                  , newZombie 500 460
+                  , newZombie 600 560
+                  , newZombie 700 660
+                  ]
       }
     , Cmd.batch
         [ Window.size |> windowSize ]

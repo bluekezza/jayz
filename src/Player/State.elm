@@ -6,7 +6,7 @@ import Player.Types exposing (..)
 initialState : Model
 initialState =                          -- The player starts 
     { geometry = 
-          { position = { x = 0, y = 0 } -- in the middle of the window
+          { position = { x = 500, y = 250 } -- in the middle of the window
           , attitude =
                 { direction = 0.0
                 , velocity = 0.0

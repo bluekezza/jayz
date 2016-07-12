@@ -139,8 +139,8 @@ zombie geometry =
 board : Model -> Html msg
 board model =
     let
-        w = 300
-        h = 500
+        w = 5
+        h = 5
     in
         svg
         [ width (toString (model.wsize.width - w)), height (toString (model.wsize.height - h)), viewBox ("0 0 " ++ (toString (model.wsize.width - w)) ++ " " ++ (toString (model.wsize.height - h)))]
@@ -186,4 +186,5 @@ root : Model -> Html Msg
 root model =
     div []
         [ board model
-        , diagnostics model ]
+        -- , diagnostics model
+        ]
