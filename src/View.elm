@@ -144,9 +144,7 @@ board model =
     in
         svg
         [ width (toString (model.wsize.width - w)), height (toString (model.wsize.height - h)), viewBox ("0 0 " ++ (toString (model.wsize.width - w)) ++ " " ++ (toString (model.wsize.height - h)))]
-        [ player model.player.geometry
-        , zombie model.zombie
-        ]
+        (player model.player.geometry :: (List.map zombie model.zombies))
 
 renderGeometry : Geometry.Geometry -> Html Msg
 renderGeometry geometry =
@@ -178,9 +176,10 @@ diagnostics model =
                             , li [] [ text ("doing: " ++ toString model.player.doing) ]
                             , renderGeometry model.player.geometry
                             ]]
-            , li [] [ text "Zombie: "
-                    , renderGeometry model.zombie
-                    ]
+            , li []
+              [text "Zombies: "
+              ,div [] (List.map renderGeometry model.zombies)
+              ]
              ]]
         
 root : Model -> Html Msg

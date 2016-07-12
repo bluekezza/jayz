@@ -18,7 +18,7 @@ type alias Model =
     { wsize : { width : Int, height : Int }
     , keys : Keys
     , player : Player.Types.Model
-    , zombie : Geometry.Geometry
+    , zombies : List Geometry.Geometry
     }
     
 type Msg

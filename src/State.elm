@@ -13,6 +13,15 @@ import Task           exposing (Task)
 import Core           exposing (iff)
 -- import Exts.Tuple     exposing (both)
 
+newZombie : Int -> Int -> Geometry.Geometry
+newZombie x y =
+    { position = { x = x, y = y }
+    , attitude =
+          { direction = 0.0
+          , velocity = 0.0
+          }
+    }
+    
 initialState : ( Model, Cmd Msg )
 initialState =
     ( { wsize = { width = 800, height = 800 }
@@ -23,12 +32,12 @@ initialState =
                , enter = False
                }
       , player = Player.State.initialState
-      , zombie = { position = { x = 100, y = 100 }
-                 , attitude =
-                       { direction = 0.0
-                       , velocity = 0.0
-                       }
-                 }
+      , zombies = [newZombie 100 100
+                  ,newZombie 120 80
+                  ,newZombie 140 100
+                  ,newZombie 160 140
+                  ,newZombie 180 100
+                  ,newZombie 200 60]
       }
     , Cmd.batch
         [ Window.size |> windowSize ]
@@ -245,10 +254,9 @@ updateModel _ model =
     let
         {keys, player} = model
         player' = updatePlayer keys player
-        zombie' = updateZombie player'.geometry.position model.zombie
     in
        {  model | player = player'
-                , zombie = zombie'
+                , zombies = List.map (updateZombie player'.geometry.position) model.zombies
        }
 
 {- SPEC
