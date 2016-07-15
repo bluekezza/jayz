@@ -26,3 +26,4 @@ type Msg
     | KeyChange (Keys -> Keys)
     | WindowResizeError Error
     | WindowResizeSuccess Size
+    | Spawn (List (Int, Int))

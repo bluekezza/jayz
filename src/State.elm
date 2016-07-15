@@ -11,7 +11,7 @@ import Types          exposing (..)
 import Http           exposing (Error)
 import Task           exposing (Task)
 import Core           exposing (iff)
--- import Exts.Tuple     exposing (both)
+import Random         exposing (pair, int)
 
 newZombie : Int -> Int -> Geometry.Geometry
 newZombie x y =
@@ -32,49 +32,13 @@ initialState =
                , enter = False
                }
       , player = Player.State.initialState
-      , zombies = [ newZombie 100 100
-                  , newZombie 120 80
-                  , newZombie 140 100
-                  , newZombie 160 140
-                  , newZombie 180 100
-                  , newZombie 200 60
-                  , newZombie 300 60
-                  , newZombie 400 60
-                  , newZombie 500 60
-                  , newZombie 600 60
-                  , newZombie 700 60
-                  , newZombie 200 160
-                  , newZombie 300 260
-                  , newZombie 400 360
-                  , newZombie 500 460
-                  , newZombie 600 560
-                  , newZombie 700 660
-                  ]
+      , zombies = []
       }
     , Cmd.batch
-        [ Window.size |> windowSize ]
+        [ Window.size |> windowSize
+        , Random.generate Spawn (Random.list 50 (Random.pair (int -4000 4800) (int -4000 4800)))]
     )
 
-{-
-keyMap : Int -> Maybe Player.Types.Msg
-keyMap keyCode =
-    case (Char.fromCode keyCode) of
-        'a' -> Just (Player.Types.Move Left)
-        'd' -> Just (Player.Types.Move Right)
-        's' -> Just (Player.Types.Move Down)
-        'w' -> Just (Player.Types.Move Right)
-        ' ' -> Just (Player.Types.Attack)
-        _   -> Nothing
--}
-
-{- SPEC
-pressing_the_a_key_makes_the_player_turn_left
-pressing_the_d_key_makes_the_player_turn_right
-pressing_the_w_key_makes_the_player_move_forward
-pressing_the_s_key_makes_the_player_move_backward
-pressing_the_enter_key_makes_the_player_attack
-pressing any other key does nothing
--}               
 keyChange : Bool -> Keyboard.KeyCode -> Msg
 keyChange on key =
     let
@@ -271,23 +235,34 @@ updateModel _ model =
                 , zombies = List.map (updateZombie player'.geometry.position) model.zombies
        }
 
+spawnZombie : (Int, Int) -> Model -> Model
+spawnZombie (x,y) model =
+    { model | zombies = newZombie x y :: model.zombies }
+        
+spawnZombies : List (Int, Int) -> Model -> Model
+spawnZombies zs model =
+    List.foldl spawnZombie model zs
+        
 {- SPEC
-WindowResize updates the window size
-KeyChange updates model.keys and player.geometry.attitude
+WindowResizeError does nothing
+WindowResizeSuccess updates the window size
+KeyChange updates model.keys
 TimeUpdate updates the model
+Spawn adds new zombies to the game
 -}            
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         WindowResizeError error  -> ( model, Cmd.none )
-        WindowResizeSuccess size -> ( { model | wsize = { width  = size.width  -- 3
-                                                        , height = size.height -- 3
+        WindowResizeSuccess size -> ( { model | wsize = { width  = size.width
+                                                        , height = size.height
                                                         }
                                       }
                                     , Cmd.none
                                     )
         KeyChange  updateKeysFn  -> ( { model | keys = updateKeysFn model.keys }, Cmd.none )
         TimeUpdate dt            -> ( updateModel dt model, Cmd.none )
+        Spawn      zs            -> ( spawnZombies zs model, Cmd.none )
 
 subscriptions : Model -> Sub Msg
 subscriptions model =

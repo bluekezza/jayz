@@ -9,7 +9,6 @@ import Html.App
 import State
 import View
 
-
 {-| Run the application.
 -}
 main : Program Never
