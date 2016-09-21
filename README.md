@@ -11,3 +11,9 @@ Just keep avoiding the zombie hordes
 # Demo
 
 http://bluekezza.github.io/jayz
+
+# Build
+
+elm-make
+cd ./dist
+open index.html
